@@ -29,7 +29,7 @@
             display: none;
             backdrop-filter: blur(10px);
         }
-        #loginForm {
+        #loginForm, #registerForm {
             display: block;
         }
         input {
@@ -67,15 +67,58 @@
         <button id="loginBtn">Login</button>
         <p>Don't have an account? <a href="#" id="goToRegister">Create one</a></p>
     </div>
+    
+    <div class="container" id="registerForm" style="display: none;">
+        <h2>Create Account</h2>
+        <input type="text" id="newUsername" placeholder="Choose a Username" required>
+        <input type="password" id="newPassword" placeholder="Choose a Secure Password" required>
+        <button id="registerBtn">Register</button>
+        <p>Already have an account? <a href="#" id="goToLogin">Login here</a></p>
+    </div>
+    
     <script>
         let users = JSON.parse(localStorage.getItem("users")) || [{ username: "admin", password: "1996" }];
+        
         document.getElementById("loginBtn").addEventListener("click", function () {
             const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value.trim();
             let validUser = users.find(user => user.username === username && user.password === password);
-            if (!validUser) {
+            if (validUser) {
+                alert("Login successful!");
+            } else {
                 alert("Invalid username or password.");
             }
+        });
+
+        document.getElementById("registerBtn").addEventListener("click", function () {
+            const newUsername = document.getElementById("newUsername").value.trim();
+            const newPassword = document.getElementById("newPassword").value.trim();
+            
+            if (newUsername === "" || newPassword === "") {
+                alert("Please fill in all fields.");
+                return;
+            }
+            
+            if (users.find(user => user.username === newUsername)) {
+                alert("Username already exists!");
+                return;
+            }
+            
+            users.push({ username: newUsername, password: newPassword });
+            localStorage.setItem("users", JSON.stringify(users));
+            alert("Account created successfully! You can now log in.");
+            document.getElementById("registerForm").style.display = "none";
+            document.getElementById("loginForm").style.display = "block";
+        });
+        
+        document.getElementById("goToRegister").addEventListener("click", function () {
+            document.getElementById("loginForm").style.display = "none";
+            document.getElementById("registerForm").style.display = "block";
+        });
+        
+        document.getElementById("goToLogin").addEventListener("click", function () {
+            document.getElementById("registerForm").style.display = "none";
+            document.getElementById("loginForm").style.display = "block";
         });
     </script>
 </body>
