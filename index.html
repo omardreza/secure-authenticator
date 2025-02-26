@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Authenticator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            background: #0e0e10;
+            color: white;
+            font-family: "Poppins", sans-serif;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 25px;
+            border-radius: 12px;
+            width: 420px;
+            box-shadow: 0px 0px 15px rgba(0, 255, 255, 0.2);
+            text-align: center;
+            display: none;
+        }
+        input, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            background: #008cff;
+            color: white;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #005fcc;
+        }
+        .pin-display {
+            font-size: 26px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #00ffcc;
+            border: 1px solid #00ffcc;
+            padding: 10px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        #qrcode {
+            margin: 15px auto;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div class="container" id="loginForm">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button id="loginBtn">Login</button>
+        <p>Don't have an account? <a href="#" id="goToRegister">Create one</a></p>
+    </div>
+    
+    <!-- Registration Form -->
+    <div class="container" id="registerForm" style="display: none;">
+        <h2>Create Account</h2>
+        <input type="text" id="newUsername" placeholder="Choose a Username" required>
+        <input type="password" id="newPassword" placeholder="Choose a Secure Password" required>
+        <button id="registerBtn">Register</button>
+        <p>Already have an account? <a href="#" id="goToLogin">Login here</a></p>
+    </div>
+
+    <!-- PIN Generator -->
+    <div class="container" id="pinGenerator" style="display: none;">
+        <h2>Your Secure Code</h2>
+        <div class="pin-display" id="generatedPin">----</div>
+        <div id="qrcode"></div>
+        <p>(Code refreshes every 15 seconds)</p>
+        <button id="generatePinBtn">Generate New Code</button>
+        <button id="logoutBtn">Logout</button>
+        <button id="goToAdmin" style="display: none;">Admin Panel</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="container" id="adminPanel" style="display: none;">
+        <h2>Admin - User Management</h2>
+        <table border="1" width="100%">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Password</th>
+                </tr>
+            </thead>
+            <tbody id="userList"></tbody>
+        </table>
+        <button id="adminBack">Back to Home</button>
+    </div>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem("users")) || [{ username: "admin", password: "1996" }];
+
+        document.getElementById("loginBtn").addEventListener("click", function() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            let validUser = users.find(user => user.username === username && user.password === password);
+
+            if (validUser) {
+                if (username.toLowerCase() === "admin") {
+                    document.getElementById("loginForm").style.display = "none";
+                    document.getElementById("adminPanel").style.display = "block";
+                    document.getElementById("goToAdmin").style.display = "block";
+                    loadUsers();
+                } else {
+                    document.getElementById("loginForm").style.display = "none";
+                    document.getElementById("pinGenerator").style.display = "block";
+                    generateSecurePin();
+                    setInterval(generateSecurePin, 15000);
+                }
+            } else {
+                alert("Invalid username or password.");
+            }
+        });
+
+        document.getElementById("generatePinBtn").addEventListener("click", generateSecurePin);
+
+        function generateSecurePin() {
+            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+            let pin = "";
+            for (let i = 0; i < 12; i++) {
+                pin += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            document.getElementById("generatedPin").innerText = pin;
+            document.getElementById("qrcode").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), pin);
+        }
+    </script>
+</body>
+</html>
