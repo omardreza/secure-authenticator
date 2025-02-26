@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Authenticator</title>
+    <link rel="icon" href="data:,">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
@@ -66,75 +67,16 @@
         <button id="loginBtn">Login</button>
         <p>Don't have an account? <a href="#" id="goToRegister">Create one</a></p>
     </div>
-    <div class="container" id="registerForm" style="display: none;">
-        <h2>Create Account</h2>
-        <input type="text" id="newUsername" placeholder="Choose a Username" required>
-        <input type="password" id="newPassword" placeholder="Choose a Secure Password" required>
-        <button id="registerBtn">Register</button>
-        <p>Already have an account? <a href="#" id="goToLogin">Login here</a></p>
-    </div>
-    <div class="container" id="pinGenerator" style="display: none;">
-        <h2>Your Secure Code</h2>
-        <div class="pin-display" id="generatedPin">----</div>
-        <div id="qrcode"></div>
-        <p>(Code refreshes every 15 seconds)</p>
-        <button id="generatePinBtn">Generate New Code</button>
-        <button id="logoutBtn">Logout</button>
-        <button id="goToAdmin" style="display: none;">Admin Panel</button>
-    </div>
-    <div class="container" id="adminPanel" style="display: none;">
-        <h2>Admin - User Management</h2>
-        <table border="1" width="100%">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Password</th>
-                </tr>
-            </thead>
-            <tbody id="userList"></tbody>
-        </table>
-        <button id="adminBack">Back to Home</button>
-    </div>
     <script>
         let users = JSON.parse(localStorage.getItem("users")) || [{ username: "admin", password: "1996" }];
         document.getElementById("loginBtn").addEventListener("click", function () {
             const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value.trim();
             let validUser = users.find(user => user.username === username && user.password === password);
-            if (validUser) {
-                if (username.toLowerCase() === "admin") {
-                    document.getElementById("loginForm").style.display = "none";
-                    document.getElementById("adminPanel").style.display = "block";
-                    document.getElementById("goToAdmin").style.display = "block";
-                    loadUsers();
-                } else {
-                    document.getElementById("loginForm").style.display = "none";
-                    document.getElementById("pinGenerator").style.display = "block";
-                    generateSecurePin();
-                    setInterval(generateSecurePin, 15000);
-                }
-            } else {
+            if (!validUser) {
                 alert("Invalid username or password.");
             }
         });
-        function generateSecurePin() {
-            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
-            let pin = "";
-            for (let i = 0; i < 12; i++) {
-                pin += characters.charAt(Math.floor(Math.random() * characters.length));
-            }
-            document.getElementById("generatedPin").innerText = pin;
-            document.getElementById("qrcode").innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), pin);
-        }
-        function loadUsers() {
-            const userList = document.getElementById("userList");
-            userList.innerHTML = "";
-            users.forEach(user => {
-                let row = `<tr><td>${user.username}</td><td>${user.password}</td></tr>`;
-                userList.innerHTML += row;
-            });
-        }
     </script>
 </body>
 </html>
